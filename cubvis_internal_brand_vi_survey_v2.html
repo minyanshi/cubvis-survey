@@ -1,0 +1,915 @@
+<!doctype html>
+
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cubvis CNC Machine 官网VI与品牌视觉方向内部调研</title>
+  <style>
+:root {
+  --bg: #f5f7fb;
+  --card: #ffffff;
+  --ink: #1f2937;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --accent: #2563eb;
+  --accent-soft: #eff6ff;
+  --danger: #b91c1c;
+  --ok: #047857;
+  --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  --radius: 18px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+  background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 240px);
+  color: var(--ink);
+  line-height: 1.65;
+}
+.wrapper { max-width: 1080px; margin: 0 auto; padding: 36px 20px 140px; }
+.hero {
+  padding: 34px 34px 28px;
+  background: rgba(255,255,255,0.78);
+  border: 1px solid rgba(255,255,255,0.9);
+  box-shadow: var(--shadow);
+  border-radius: 26px;
+  backdrop-filter: blur(12px);
+}
+.hero h1 { margin: 0 0 12px; font-size: clamp(26px, 4vw, 40px); line-height: 1.18; letter-spacing: -0.03em; }
+.hero p { margin: 8px 0; color: var(--muted); font-size: 15px; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.badge { display: inline-flex; align-items: center; padding: 6px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 600; }
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin: 24px 0;
+}
+.card h2 { margin: 0 0 10px; font-size: 22px; letter-spacing: -0.02em; }
+.card .section-desc { margin: 0 0 22px; color: var(--muted); font-size: 14px; }
+.question { padding: 20px 0; border-top: 1px solid var(--line); }
+.question:first-of-type { border-top: 0; padding-top: 6px; }
+.q-title { display: block; font-weight: 700; margin-bottom: 10px; }
+.q-help { color: var(--muted); font-size: 13px; margin: -3px 0 10px; }
+.options { display: grid; gap: 10px; }
+.options.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.options.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 760px) { .options.grid-2, .options.grid-3 { grid-template-columns: 1fr; } .card, .hero { padding: 22px; } }
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  min-height: 44px;
+}
+.option:hover { border-color: #bfdbfe; background: #fbfdff; }
+.option input { margin-top: 5px; }
+.option span { display: block; }
+.option .examples { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 400; line-height: 1.45; }
+.option .examples a { color: var(--accent); text-decoration: none; }
+.option .examples a:hover { text-decoration: underline; }
+input[type="text"], input[type="url"], input[type="number"], textarea, select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 11px 12px;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+  outline: none;
+}
+input[type="text"]:focus, input[type="url"]:focus, input[type="number"]:focus, textarea:focus, select:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 4px #dbeafe;
+}
+textarea { min-height: 92px; resize: vertical; }
+.inline-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 760px) { .inline-row { grid-template-columns: 1fr; } }
+.matrix { width: 100%; border-collapse: collapse; overflow: hidden; font-size: 14px; }
+.matrix th, .matrix td { border: 1px solid var(--line); padding: 10px; text-align: center; vertical-align: middle; }
+.matrix th:first-child, .matrix td:first-child { text-align: left; min-width: 180px; }
+.matrix thead th { background: #f8fafc; font-weight: 700; }
+.matrix .endpoint { color: var(--muted); font-size: 12px; }
+.rank-grid { display: grid; gap: 10px; }
+.rank-item { display: grid; grid-template-columns: 88px 1fr; gap: 10px; align-items: center; }
+.actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  background: rgba(255,255,255,0.94);
+  border-top: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+}
+.actions-inner { max-width: 1080px; margin: 0 auto; padding: 14px 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.actions-left, .actions-right { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 11px 15px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+button.primary { background: var(--accent); color: #fff; }
+button.secondary { background: #e5e7eb; color: #111827; }
+button.ghost { background: transparent; color: var(--accent); }
+button.danger { background: #fee2e2; color: var(--danger); }
+button:hover { filter: brightness(0.98); }
+.notice { padding: 12px 14px; border-radius: 12px; background: #f8fafc; border: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+.notice strong { color: var(--ink); }
+.hidden { display: none !important; }
+.preview-box { border: 1px dashed #cbd5e1; border-radius: 14px; padding: 14px; background: #f8fafc; }
+.preview-stage { display: none; margin-top: 12px; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: white; }
+.preview-stage img { display: block; max-width: 100%; height: auto; }
+.countdown { color: var(--accent); font-weight: 800; margin-top: 8px; }
+.small { font-size: 13px; color: var(--muted); }
+.required::after { content: " *"; color: var(--danger); }
+.progress { margin-top: 18px; height: 8px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
+.progress span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s ease; }
+.file-input { padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; width: 100%; }
+</style>
+</head>
+<body data-storage-key="cubvis_brand_vi_internal_records_v2" data-file-prefix="cubvis_internal_brand_vi_survey">
+  <div class="wrapper">
+    <header class="hero">
+      <h1>Cubvis CNC Machine 官网VI与品牌视觉方向内部调研</h1>
+      <p>用于收集团队对 Cubvis CNC Machine 的品牌定位、产品记忆点、官网视觉风格、内容重点和用户感知的判断。预计填写 8–12 分钟。</p>
+      <p>本页面可直接双击打开使用，数据不会上传到服务器。点击底部按钮即可下载 CSV；“累计记录”只保存在当前浏览器本地。</p>
+      <div class="badges"><span class="badge">内部共识</span><span class="badge">品牌定位</span><span class="badge">官网VI</span><span class="badge">可导出CSV</span></div>
+      <div class="progress"><span></span></div>
+    </header>
+    <form id="surveyForm">
+      <input type="hidden" name="问卷标题" value="Cubvis CNC Machine 官网VI与品牌视觉方向内部调研">
+      
+<section class="card" >
+  <h2>A. 基础信息</h2>
+  <p class="section-desc">用于区分不同部门视角，便于后续交叉分析。</p>
+  
+<div class="question">
+  <label class="q-title" for="Q01_姓名">1. 你的姓名与所在部门</label>
+  <input type="text" id="Q01_姓名" name="Q01_姓名" placeholder="请输入姓名">
+  <div class="q-help" style="margin-top:12px;">请选择你所在部门。</div>
+  <div class="options grid-3">
+<label class="option"><input type="radio" name="Q01_部门" value="市场"><span>市场</span></label>
+<label class="option"><input type="radio" name="Q01_部门" value="研发"><span>研发</span></label>
+<label class="option"><input type="radio" name="Q01_部门" value="软件"><span>软件</span></label>
+</div>
+</div>
+<div class="question">
+  <div class="q-title">2. 你与品牌官网的关系更接近以下哪一种？</div>
+  
+  <div class="options grid-2 checkbox-group">
+<label class="option"><input type="checkbox" name="Q02_官网关系" value="我会参与官网内容规划"><span>我会参与官网内容规划</span></label>
+<label class="option"><input type="checkbox" name="Q02_官网关系" value="我会参与官网技术实现"><span>我会参与官网技术实现</span></label>
+<label class="option"><input type="checkbox" name="Q02_官网关系" value="我会参与官网视觉 / 设计判断"><span>我会参与官网视觉 / 设计判断</span></label>
+<label class="option"><input type="checkbox" name="Q02_官网关系" value="我会使用官网进行市场推广"><span>我会使用官网进行市场推广</span></label>
+<label class="option"><input type="checkbox" name="Q02_官网关系" value="我会使用官网辅助销售转化"><span>我会使用官网辅助销售转化</span></label>
+<label class="option"><input type="checkbox" name="Q02_官网关系" value="我会接触客户对官网 / 品牌的反馈"><span>我会接触客户对官网 / 品牌的反馈</span></label>
+<label class="option"><input type="checkbox" name="Q02_官网关系" value="我只是作为内部成员提供看法"><span>我只是作为内部成员提供看法</span></label>
+<label class="option"><input type="checkbox" name="Q02_官网关系" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q02_官网关系_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <div class="q-title">3. 你对 Cubvis CNC Machine 产品的熟悉程度是？</div>
+  <div class="q-help">1 = 完全不了解；7 = 非常了解，可以清楚介绍给客户</div>
+  <div style="overflow-x:auto;">
+    <table class="matrix">
+      <thead><tr><th>评价项</th><th>1<div class="endpoint">不了解</div></th><th>2<div class="endpoint"></div></th><th>3<div class="endpoint"></div></th><th>4<div class="endpoint"></div></th><th>5<div class="endpoint"></div></th><th>6<div class="endpoint"></div></th><th>7<div class="endpoint">非常了解</div></th></tr></thead>
+      <tbody><tr><td>熟悉程度</td><td><input type="radio" name="Q03_产品服务熟悉程度" value="1"></td><td><input type="radio" name="Q03_产品服务熟悉程度" value="2"></td><td><input type="radio" name="Q03_产品服务熟悉程度" value="3"></td><td><input type="radio" name="Q03_产品服务熟悉程度" value="4"></td><td><input type="radio" name="Q03_产品服务熟悉程度" value="5"></td><td><input type="radio" name="Q03_产品服务熟悉程度" value="6"></td><td><input type="radio" name="Q03_产品服务熟悉程度" value="7"></td></tr></tbody>
+    </table>
+  </div>
+</div>
+</section>
+<section class="card" >
+  <h2>B. 品牌认知与定位</h2>
+  <p class="section-desc">请尽量从用户和市场视角回答，而不是单纯从内部视角回答。</p>
+  
+<div class="question">
+  <label class="q-title" for="Q04_一句话介绍">4. 如果只能用一句话介绍 Cubvis，你会怎么说？</label>
+  <div class="q-help">建议格式：我们是一家帮助 ______ 用户解决 ______ 问题的 ______ 品牌。</div>
+  <textarea id="Q04_一句话介绍" name="Q04_一句话介绍" placeholder="请填写你的真实想法。"></textarea>
+</div>
+<div class="question">
+  <div class="q-title">5. 你认为 Cubvis 最核心的产品价值是什么？</div>
+  <div class="q-help">最多选择 3 项。</div>
+  <div class="options grid-2 checkbox-group" data-max="3">
+<label class="option"><input type="checkbox" name="Q05_核心产品价值" value="更高加工效率"><span>更高加工效率</span></label>
+<label class="option"><input type="checkbox" name="Q05_核心产品价值" value="更低综合成本"><span>更低综合成本</span></label>
+<label class="option"><input type="checkbox" name="Q05_核心产品价值" value="更稳定的加工精度"><span>更稳定的加工精度</span></label>
+<label class="option"><input type="checkbox" name="Q05_核心产品价值" value="更低的上手难度"><span>更低的上手难度</span></label>
+<label class="option"><input type="checkbox" name="Q05_核心产品价值" value="更平缓的学习曲线"><span>更平缓的学习曲线</span></label>
+<label class="option"><input type="checkbox" name="Q05_核心产品价值" value="更快的回本效率"><span>更快的回本效率</span></label>
+<label class="option"><input type="checkbox" name="Q05_核心产品价值" value="更智能 / 自动化"><span>更智能 / 自动化</span></label>
+<label class="option"><input type="checkbox" name="Q05_核心产品价值" value="更安全可靠"><span>更安全可靠</span></label>
+<label class="option"><input type="checkbox" name="Q05_核心产品价值" value="更好的软硬件一体体验"><span>更好的软硬件一体体验</span></label>
+<label class="option"><input type="checkbox" name="Q05_核心产品价值" value="更少维护 / 调机负担"><span>更少维护 / 调机负担</span></label>
+<label class="option"><input type="checkbox" name="Q05_核心产品价值" value="更适合小型工坊 / 教育 / 创客场景"><span>更适合小型工坊 / 教育 / 创客场景</span></label>
+<label class="option"><input type="checkbox" name="Q05_核心产品价值" value="更具服务支持优势"><span>更具服务支持优势</span></label>
+<label class="option"><input type="checkbox" name="Q05_核心产品价值" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q05_核心产品价值_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <label class="q-title" for="Q06_用户选择原因">6. 你认为用户选择我们的最主要原因是什么？</label>
+  <div class="q-help">请尽量具体，例如部署更快、售后响应更及时、功能更贴近行业场景等。</div>
+  <textarea id="Q06_用户选择原因" name="Q06_用户选择原因" placeholder="请填写你的真实想法。"></textarea>
+</div>
+<div class="question">
+  <div class="q-title">7. 你认为用户最应该记住 Cubvis 的哪一点？</div>
+  
+  <div class="options grid-2">
+<label class="option"><input type="radio" name="Q07_最应该被记住的点" value="品牌名字"><span>品牌名字</span></label>
+<label class="option"><input type="radio" name="Q07_最应该被记住的点" value="产品功能"><span>产品功能</span></label>
+<label class="option"><input type="radio" name="Q07_最应该被记住的点" value="使用场景 / 适用人群"><span>使用场景 / 适用人群</span></label>
+<label class="option"><input type="radio" name="Q07_最应该被记住的点" value="技术实力"><span>技术实力</span></label>
+<label class="option"><input type="radio" name="Q07_最应该被记住的点" value="行业经验"><span>行业经验</span></label>
+<label class="option"><input type="radio" name="Q07_最应该被记住的点" value="服务能力"><span>服务能力</span></label>
+<label class="option"><input type="radio" name="Q07_最应该被记住的点" value="安全可靠"><span>安全可靠</span></label>
+<label class="option"><input type="radio" name="Q07_最应该被记住的点" value="创新感"><span>创新感</span></label>
+<label class="option"><input type="radio" name="Q07_最应该被记住的点" value="高端专业感"><span>高端专业感</span></label>
+<label class="option"><input type="radio" name="Q07_最应该被记住的点" value="性价比"><span>性价比</span></label>
+<label class="option"><input type="radio" name="Q07_最应该被记住的点" value="某个独特概念 / 口号"><span>某个独特概念 / 口号</span></label>
+<label class="option"><input type="radio" name="Q07_最应该被记住的点" value="某个视觉符号"><span>某个视觉符号</span></label>
+<label class="option"><input type="radio" name="Q07_最应该被记住的点" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q07_最应该被记住的点_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <label class="q-title" for="Q08_5秒希望记住">8. 如果用户只看官网首页 5 秒，你希望他记住什么？</label>
+  <div class="q-help">请写下你最希望用户带走的一个印象。</div>
+  <textarea id="Q08_5秒希望记住" name="Q08_5秒希望记住" placeholder="请填写你的真实想法。"></textarea>
+</div>
+<div class="question">
+  <label class="q-title" for="Q09_竞品差异">9. 你认为 Cubvis 与竞品最大的不同是什么？</label>
+  <div class="q-help">可以从产品、技术、服务、行业经验、价格、体验、品牌调性等方面回答。</div>
+  <textarea id="Q09_竞品差异" name="Q09_竞品差异" placeholder="请填写你的真实想法。"></textarea>
+</div>
+<div class="question">
+  <label class="q-title" for="Q10_外界误解">10. 你认为 Cubvis 现在最容易被外界误解成什么？</label>
+  <div class="q-help">例如太传统、太小众、太贵、太复杂、像外包公司、像普通工具等。</div>
+  <textarea id="Q10_外界误解" name="Q10_外界误解" placeholder="请填写你的真实想法。"></textarea>
+</div>
+</section>
+<section class="card" >
+  <h2>C. 品牌触达与关键词判断</h2>
+  <p class="section-desc">这一部分会影响官网首屏信息、内容入口、投放素材和品牌记忆点。</p>
+  
+<div class="question">
+  <div class="q-title">11. 你认为 Cubvis 官网最主要的用户来源 / 触达渠道会是什么？</div>
+  <div class="q-help">最多选择 3 项。这里用于判断官网视觉与内容应该优先适配哪些入口场景。</div>
+  <div class="options grid-2 checkbox-group" data-max="3">
+<label class="option"><input type="checkbox" name="Q11_主要渠道来源" value="搜索引擎 / SEO"><span>搜索引擎 / SEO</span></label>
+<label class="option"><input type="checkbox" name="Q11_主要渠道来源" value="短视频 / 社交媒体 / 教程内容"><span>短视频 / 社交媒体 / 教程内容</span></label>
+<label class="option"><input type="checkbox" name="Q11_主要渠道来源" value="行业展会 / 线下活动"><span>行业展会 / 线下活动</span></label>
+<label class="option"><input type="checkbox" name="Q11_主要渠道来源" value="行业论坛 / 社群 / 创客社区"><span>行业论坛 / 社群 / 创客社区</span></label>
+<label class="option"><input type="checkbox" name="Q11_主要渠道来源" value="经销商 / 销售推荐"><span>经销商 / 销售推荐</span></label>
+<label class="option"><input type="checkbox" name="Q11_主要渠道来源" value="老客户 / 朋友口碑推荐"><span>老客户 / 朋友口碑推荐</span></label>
+<label class="option"><input type="checkbox" name="Q11_主要渠道来源" value="广告投放 / 再营销"><span>广告投放 / 再营销</span></label>
+<label class="option"><input type="checkbox" name="Q11_主要渠道来源" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q11_主要渠道来源_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <div class="q-title">12. 请选出你认为 Cubvis 绝对不应该给人的 3 个感觉</div>
+  <div class="q-help">最多选择 3 项。</div>
+  <div class="options grid-2 checkbox-group" data-max="3">
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="廉价"><span>廉价</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="复杂难懂"><span>复杂难懂</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="过于冰冷"><span>过于冰冷</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="过于花哨"><span>过于花哨</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="不够专业"><span>不够专业</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="不够安全"><span>不够安全</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="不够成熟"><span>不够成熟</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="过于传统"><span>过于传统</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="缺少科技感"><span>缺少科技感</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="缺少人情味"><span>缺少人情味</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="像模板网站"><span>像模板网站</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="像普通外包公司"><span>像普通外包公司</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="像初创小团队"><span>像初创小团队</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="像大而空的概念包装"><span>像大而空的概念包装</span></label>
+<label class="option"><input type="checkbox" name="Q12_应避免感觉" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q12_应避免感觉_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <div class="q-title">13. 你认为 Cubvis 更应该接近哪种品牌人格？</div>
+  <div class="q-help">请选择更接近你判断的位置，1分代表左侧描述，7分代表右侧描述。</div>
+  <div style="overflow-x:auto;">
+    <table class="matrix">
+      <thead><tr><th>左侧描述</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>右侧描述</th></tr></thead>
+      <tbody><tr><td><strong>年轻活力</strong><div class="endpoint">1分</div></td><td><input type="radio" name="Q13_品牌年龄感" value="1"></td><td><input type="radio" name="Q13_品牌年龄感" value="2"></td><td><input type="radio" name="Q13_品牌年龄感" value="3"></td><td><input type="radio" name="Q13_品牌年龄感" value="4"></td><td><input type="radio" name="Q13_品牌年龄感" value="5"></td><td><input type="radio" name="Q13_品牌年龄感" value="6"></td><td><input type="radio" name="Q13_品牌年龄感" value="7"></td><td><strong>成熟稳重</strong><div class="endpoint">7分</div></td></tr><tr><td><strong>人文亲和</strong><div class="endpoint">1分</div></td><td><input type="radio" name="Q13_技术气质" value="1"></td><td><input type="radio" name="Q13_技术气质" value="2"></td><td><input type="radio" name="Q13_技术气质" value="3"></td><td><input type="radio" name="Q13_技术气质" value="4"></td><td><input type="radio" name="Q13_技术气质" value="5"></td><td><input type="radio" name="Q13_技术气质" value="6"></td><td><input type="radio" name="Q13_技术气质" value="7"></td><td><strong>科技理性</strong><div class="endpoint">7分</div></td></tr><tr><td><strong>克制简洁</strong><div class="endpoint">1分</div></td><td><input type="radio" name="Q13_表达方式" value="1"></td><td><input type="radio" name="Q13_表达方式" value="2"></td><td><input type="radio" name="Q13_表达方式" value="3"></td><td><input type="radio" name="Q13_表达方式" value="4"></td><td><input type="radio" name="Q13_表达方式" value="5"></td><td><input type="radio" name="Q13_表达方式" value="6"></td><td><input type="radio" name="Q13_表达方式" value="7"></td><td><strong>强烈冲击</strong><div class="endpoint">7分</div></td></tr><tr><td><strong>温暖陪伴</strong><div class="endpoint">1分</div></td><td><input type="radio" name="Q13_客户感受" value="1"></td><td><input type="radio" name="Q13_客户感受" value="2"></td><td><input type="radio" name="Q13_客户感受" value="3"></td><td><input type="radio" name="Q13_客户感受" value="4"></td><td><input type="radio" name="Q13_客户感受" value="5"></td><td><input type="radio" name="Q13_客户感受" value="6"></td><td><input type="radio" name="Q13_客户感受" value="7"></td><td><strong>专业权威</strong><div class="endpoint">7分</div></td></tr><tr><td><strong>普惠实用</strong><div class="endpoint">1分</div></td><td><input type="radio" name="Q13_市场位置" value="1"></td><td><input type="radio" name="Q13_市场位置" value="2"></td><td><input type="radio" name="Q13_市场位置" value="3"></td><td><input type="radio" name="Q13_市场位置" value="4"></td><td><input type="radio" name="Q13_市场位置" value="5"></td><td><input type="radio" name="Q13_市场位置" value="6"></td><td><input type="radio" name="Q13_市场位置" value="7"></td><td><strong>高端领先</strong><div class="endpoint">7分</div></td></tr><tr><td><strong>易用轻量</strong><div class="endpoint">1分</div></td><td><input type="radio" name="Q13_产品感知" value="1"></td><td><input type="radio" name="Q13_产品感知" value="2"></td><td><input type="radio" name="Q13_产品感知" value="3"></td><td><input type="radio" name="Q13_产品感知" value="4"></td><td><input type="radio" name="Q13_产品感知" value="5"></td><td><input type="radio" name="Q13_产品感知" value="6"></td><td><input type="radio" name="Q13_产品感知" value="7"></td><td><strong>深度强大</strong><div class="endpoint">7分</div></td></tr><tr><td><strong>稳定保守</strong><div class="endpoint">1分</div></td><td><input type="radio" name="Q13_创新程度" value="1"></td><td><input type="radio" name="Q13_创新程度" value="2"></td><td><input type="radio" name="Q13_创新程度" value="3"></td><td><input type="radio" name="Q13_创新程度" value="4"></td><td><input type="radio" name="Q13_创新程度" value="5"></td><td><input type="radio" name="Q13_创新程度" value="6"></td><td><input type="radio" name="Q13_创新程度" value="7"></td><td><strong>前沿创新</strong><div class="endpoint">7分</div></td></tr><tr><td><strong>干净留白</strong><div class="endpoint">1分</div></td><td><input type="radio" name="Q13_视觉风格" value="1"></td><td><input type="radio" name="Q13_视觉风格" value="2"></td><td><input type="radio" name="Q13_视觉风格" value="3"></td><td><input type="radio" name="Q13_视觉风格" value="4"></td><td><input type="radio" name="Q13_视觉风格" value="5"></td><td><input type="radio" name="Q13_视觉风格" value="6"></td><td><input type="radio" name="Q13_视觉风格" value="7"></td><td><strong>丰富细节</strong><div class="endpoint">7分</div></td></tr></tbody>
+    </table>
+  </div>
+</div>
+</section>
+<section class="card" >
+  <h2>D. 官网视觉风格方向</h2>
+  <p class="section-desc">这里不是投票选“个人喜欢”，而是判断什么视觉能帮助用户记住品牌。</p>
+  
+<div class="question">
+  <div class="q-title">14. 你认为官网整体视觉最应该优先传达什么？</div>
+  <div class="q-help">请按优先级选择，建议不要重复选择。</div>
+  <div class="rank-grid"><div class="rank-item"><strong>第 1 位</strong><select name="Q14_视觉优先传达_第1位"><option value="">请选择</option><option value="专业可信">专业可信</option><option value="技术领先">技术领先</option><option value="安全稳定">安全稳定</option><option value="高端质感">高端质感</option><option value="简洁易懂">简洁易懂</option><option value="行业经验">行业经验</option><option value="产品易用">产品易用</option><option value="服务可靠">服务可靠</option><option value="创新活力">创新活力</option><option value="国际化">国际化</option><option value="数据驱动">数据驱动</option><option value="增长效果">增长效果</option><option value="客户案例实力">客户案例实力</option><option value="品牌独特记忆点">品牌独特记忆点</option></select></div><div class="rank-item"><strong>第 2 位</strong><select name="Q14_视觉优先传达_第2位"><option value="">请选择</option><option value="专业可信">专业可信</option><option value="技术领先">技术领先</option><option value="安全稳定">安全稳定</option><option value="高端质感">高端质感</option><option value="简洁易懂">简洁易懂</option><option value="行业经验">行业经验</option><option value="产品易用">产品易用</option><option value="服务可靠">服务可靠</option><option value="创新活力">创新活力</option><option value="国际化">国际化</option><option value="数据驱动">数据驱动</option><option value="增长效果">增长效果</option><option value="客户案例实力">客户案例实力</option><option value="品牌独特记忆点">品牌独特记忆点</option></select></div><div class="rank-item"><strong>第 3 位</strong><select name="Q14_视觉优先传达_第3位"><option value="">请选择</option><option value="专业可信">专业可信</option><option value="技术领先">技术领先</option><option value="安全稳定">安全稳定</option><option value="高端质感">高端质感</option><option value="简洁易懂">简洁易懂</option><option value="行业经验">行业经验</option><option value="产品易用">产品易用</option><option value="服务可靠">服务可靠</option><option value="创新活力">创新活力</option><option value="国际化">国际化</option><option value="数据驱动">数据驱动</option><option value="增长效果">增长效果</option><option value="客户案例实力">客户案例实力</option><option value="品牌独特记忆点">品牌独特记忆点</option></select></div><div class="rank-item"><strong>第 4 位</strong><select name="Q14_视觉优先传达_第4位"><option value="">请选择</option><option value="专业可信">专业可信</option><option value="技术领先">技术领先</option><option value="安全稳定">安全稳定</option><option value="高端质感">高端质感</option><option value="简洁易懂">简洁易懂</option><option value="行业经验">行业经验</option><option value="产品易用">产品易用</option><option value="服务可靠">服务可靠</option><option value="创新活力">创新活力</option><option value="国际化">国际化</option><option value="数据驱动">数据驱动</option><option value="增长效果">增长效果</option><option value="客户案例实力">客户案例实力</option><option value="品牌独特记忆点">品牌独特记忆点</option></select></div><div class="rank-item"><strong>第 5 位</strong><select name="Q14_视觉优先传达_第5位"><option value="">请选择</option><option value="专业可信">专业可信</option><option value="技术领先">技术领先</option><option value="安全稳定">安全稳定</option><option value="高端质感">高端质感</option><option value="简洁易懂">简洁易懂</option><option value="行业经验">行业经验</option><option value="产品易用">产品易用</option><option value="服务可靠">服务可靠</option><option value="创新活力">创新活力</option><option value="国际化">国际化</option><option value="数据驱动">数据驱动</option><option value="增长效果">增长效果</option><option value="客户案例实力">客户案例实力</option><option value="品牌独特记忆点">品牌独特记忆点</option></select></div></div>
+</div>
+<div class="question">
+  <div class="q-title">15. 你更倾向哪类官网视觉方向？</div>
+  <div class="q-help">最多选择 3 项；示例只作为视觉参考，不代表要照抄。</div>
+  <div class="options grid-1 checkbox-group" data-max="3">
+<label class="option"><input type="checkbox" name="Q15_官网视觉方向" value="极简科技风"><span><strong>极简科技风</strong>：大量留白、清晰排版、理性克制<small class="examples">参考网站：<a href="https://www.apple.com/sg/mac/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Apple Mac</a>、<a href="https://linear.app/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Linear</a></small></span></label>
+<label class="option"><input type="checkbox" name="Q15_官网视觉方向" value="深色科技风"><span><strong>深色科技风</strong>：黑色 / 深蓝背景、强科技感、适合技术型品牌<small class="examples">参考网站：<a href="https://vercel.com/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Vercel</a>、<a href="https://www.nvidia.com/en-us/" target="_blank" rel="noopener" onclick="event.stopPropagation()">NVIDIA</a></small></span></label>
+<label class="option"><input type="checkbox" name="Q15_官网视觉方向" value="企业可信风"><span><strong>企业可信风</strong>：蓝白灰体系、专业稳重、适合B端客户<small class="examples">参考网站：<a href="https://www.haascnc.com/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Haas</a>、<a href="https://www.okuma.com/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Okuma</a></small></span></label>
+<label class="option"><input type="checkbox" name="Q15_官网视觉方向" value="高端国际风"><span><strong>高端国际风</strong>：精致排版、克制色彩、强调品牌质感<small class="examples">参考网站：<a href="https://en.dmgmori.com/products/machines" target="_blank" rel="noopener" onclick="event.stopPropagation()">DMG MORI</a>、<a href="https://www.makino.com/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Makino</a></small></span></label>
+<label class="option"><input type="checkbox" name="Q15_官网视觉方向" value="活力创新风"><span><strong>活力创新风</strong>：明亮色彩、动效丰富、强调年轻和增长<small class="examples">参考网站：<a href="https://www.xtool.com/" target="_blank" rel="noopener" onclick="event.stopPropagation()">xTool</a>、<a href="https://bambulab.com/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Bambu Lab</a></small></span></label>
+<label class="option"><input type="checkbox" name="Q15_官网视觉方向" value="数据智能风"><span><strong>数据智能风</strong>：图表、数据流、AI感、算法感<small class="examples">参考网站：<a href="https://www.siemens.com/en-us/company/about/businesses/digital-industries/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Siemens Digital Industries</a>、<a href="https://www.protolabs.com/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Protolabs</a></small></span></label>
+<label class="option"><input type="checkbox" name="Q15_官网视觉方向" value="温暖服务风"><span><strong>温暖服务风</strong>：真实场景、人物、客户关系、陪伴感<small class="examples">参考网站：<a href="https://carbide3d.com/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Carbide 3D</a>、<a href="https://bantamtools.com/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Bantam Tools</a></small></span></label>
+<label class="option"><input type="checkbox" name="Q15_官网视觉方向" value="行业解决方案风"><span><strong>行业解决方案风</strong>：突出具体行业场景、材料、应用和客户成果<small class="examples">参考网站：<a href="https://formlabs.com/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Formlabs</a>、<a href="https://www.protolabs.com/" target="_blank" rel="noopener" onclick="event.stopPropagation()">Protolabs</a></small></span></label>
+<label class="option"><input type="checkbox" name="Q15_官网视觉方向" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q15_官网视觉方向_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <div class="q-title">16. 你认为官网主色调应该给人什么感觉？</div>
+  <div class="q-help">最多选择 3 项。</div>
+  <div class="options grid-3 checkbox-group" data-max="3">
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="安全"><span>安全</span></label>
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="稳定"><span>稳定</span></label>
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="科技"><span>科技</span></label>
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="高端"><span>高端</span></label>
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="活力"><span>活力</span></label>
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="温暖"><span>温暖</span></label>
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="清爽"><span>清爽</span></label>
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="专业"><span>专业</span></label>
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="前沿"><span>前沿</span></label>
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="可信"><span>可信</span></label>
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="年轻"><span>年轻</span></label>
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="国际化"><span>国际化</span></label>
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="有记忆点"><span>有记忆点</span></label>
+<label class="option"><input type="checkbox" name="Q16_主色调感受" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q16_主色调感受_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <div class="q-title">17. 你认为以下哪些颜色方向更适合 Cubvis？</div>
+  <div class="q-help">最多选择 3 项。</div>
+  <div class="options grid-1 checkbox-group" data-max="3">
+<label class="option"><input type="checkbox" name="Q17_颜色方向" value="蓝色系：专业、安全、科技、企业级"><span>蓝色系：专业、安全、科技、企业级</span></label>
+<label class="option"><input type="checkbox" name="Q17_颜色方向" value="深蓝 / 黑色系：高端、技术、权威、未来感"><span>深蓝 / 黑色系：高端、技术、权威、未来感</span></label>
+<label class="option"><input type="checkbox" name="Q17_颜色方向" value="绿色系：增长、健康、可持续、安全"><span>绿色系：增长、健康、可持续、安全</span></label>
+<label class="option"><input type="checkbox" name="Q17_颜色方向" value="紫色系：智能、创新、AI、差异化"><span>紫色系：智能、创新、AI、差异化</span></label>
+<label class="option"><input type="checkbox" name="Q17_颜色方向" value="橙色 / 黄色系：活力、效率、热情、行动感"><span>橙色 / 黄色系：活力、效率、热情、行动感</span></label>
+<label class="option"><input type="checkbox" name="Q17_颜色方向" value="红色系：力量、速度、强识别度"><span>红色系：力量、速度、强识别度</span></label>
+<label class="option"><input type="checkbox" name="Q17_颜色方向" value="灰白中性色：简洁、克制、高级、理性"><span>灰白中性色：简洁、克制、高级、理性</span></label>
+<label class="option"><input type="checkbox" name="Q17_颜色方向" value="渐变色：科技、流动感、年轻化"><span>渐变色：科技、流动感、年轻化</span></label>
+<label class="option"><input type="checkbox" name="Q17_颜色方向" value="暂不确定，应该由设计方案验证"><span>暂不确定，应该由设计方案验证</span></label>
+<label class="option"><input type="checkbox" name="Q17_颜色方向" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q17_颜色方向_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <label class="q-title" for="Q18_应避免颜色视觉">18. 你认为哪些颜色或视觉感觉应该避免？</label>
+  <div class="q-help">例如太幼稚、太像金融机构、太像游戏、太像政府官网、太暗、太冷、太花等。</div>
+  <textarea id="Q18_应避免颜色视觉" name="Q18_应避免颜色视觉" placeholder="请填写你的真实想法。"></textarea>
+</div>
+<div class="question">
+  <div class="q-title">19. 你认为官网素材更适合使用哪些形式？</div>
+  
+  <div class="options grid-2 checkbox-group">
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="产品界面截图"><span>产品界面截图</span></label>
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="真实客户使用场景"><span>真实客户使用场景</span></label>
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="团队 / 办公环境照片"><span>团队 / 办公环境照片</span></label>
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="行业场景照片"><span>行业场景照片</span></label>
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="3D图形"><span>3D图形</span></label>
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="抽象科技图形"><span>抽象科技图形</span></label>
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="数据可视化图表"><span>数据可视化图表</span></label>
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="线性图标"><span>线性图标</span></label>
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="插画"><span>插画</span></label>
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="动态视频"><span>动态视频</span></label>
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="客户案例卡片"><span>客户案例卡片</span></label>
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="技术架构图"><span>技术架构图</span></label>
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="Logo墙 / 客户墙"><span>Logo墙 / 客户墙</span></label>
+<label class="option"><input type="checkbox" name="Q19_适合素材形式" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q19_适合素材形式_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <div class="q-title">20. 你认为官网最不适合使用哪些素材？</div>
+  
+  <div class="options grid-2 checkbox-group">
+<label class="option"><input type="checkbox" name="Q20_不适合素材形式" value="过度抽象的科技图"><span>过度抽象的科技图</span></label>
+<label class="option"><input type="checkbox" name="Q20_不适合素材形式" value="过多人物摆拍图"><span>过多人物摆拍图</span></label>
+<label class="option"><input type="checkbox" name="Q20_不适合素材形式" value="网络感很强的图库照片"><span>网络感很强的图库照片</span></label>
+<label class="option"><input type="checkbox" name="Q20_不适合素材形式" value="太复杂的技术架构图"><span>太复杂的技术架构图</span></label>
+<label class="option"><input type="checkbox" name="Q20_不适合素材形式" value="太可爱的插画"><span>太可爱的插画</span></label>
+<label class="option"><input type="checkbox" name="Q20_不适合素材形式" value="太多炫酷但无意义的动效"><span>太多炫酷但无意义的动效</span></label>
+<label class="option"><input type="checkbox" name="Q20_不适合素材形式" value="过于模板化的图标"><span>过于模板化的图标</span></label>
+<label class="option"><input type="checkbox" name="Q20_不适合素材形式" value="过于夸张的3D图形"><span>过于夸张的3D图形</span></label>
+<label class="option"><input type="checkbox" name="Q20_不适合素材形式" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q20_不适合素材形式_其他补充" placeholder="其他补充">
+</div>
+</div>
+</section>
+<section class="card" >
+  <h2>E. 官网内容与页面结构</h2>
+  <p class="section-desc">请从用户看官网时的理解路径和转化路径出发。</p>
+  
+<div class="question">
+  <div class="q-title">21. 你认为官网首页首屏必须出现哪些信息？</div>
+  <div class="q-help">最多选择 5 项。</div>
+  <div class="options grid-2 checkbox-group" data-max="5">
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="品牌一句话定位"><span>品牌一句话定位</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="核心产品名称"><span>核心产品名称</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="核心卖点"><span>核心卖点</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="产品界面展示"><span>产品界面展示</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="适用客户 / 行业"><span>适用客户 / 行业</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="关键数据"><span>关键数据</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="客户案例"><span>客户案例</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="合作客户Logo"><span>合作客户Logo</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="免费试用 / 预约演示按钮"><span>免费试用 / 预约演示按钮</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="技术能力"><span>技术能力</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="安全认证"><span>安全认证</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="服务承诺"><span>服务承诺</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="价格入口"><span>价格入口</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="联系我们"><span>联系我们</span></label>
+<label class="option"><input type="checkbox" name="Q21_首页首屏信息" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q21_首页首屏信息_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <div class="q-title">22. 你认为官网最应该解决用户的哪个问题？</div>
+  
+  <div class="options grid-1">
+<label class="option"><input type="radio" name="Q22_官网核心解决问题" value="这家公司是做什么的？"><span>这家公司是做什么的？</span></label>
+<label class="option"><input type="radio" name="Q22_官网核心解决问题" value="这个产品能帮我解决什么问题？"><span>这个产品能帮我解决什么问题？</span></label>
+<label class="option"><input type="radio" name="Q22_官网核心解决问题" value="它和竞品有什么不同？"><span>它和竞品有什么不同？</span></label>
+<label class="option"><input type="radio" name="Q22_官网核心解决问题" value="它是否可信？"><span>它是否可信？</span></label>
+<label class="option"><input type="radio" name="Q22_官网核心解决问题" value="它是否适合我的行业？"><span>它是否适合我的行业？</span></label>
+<label class="option"><input type="radio" name="Q22_官网核心解决问题" value="它是否容易部署 / 使用？"><span>它是否容易部署 / 使用？</span></label>
+<label class="option"><input type="radio" name="Q22_官网核心解决问题" value="它是否安全可靠？"><span>它是否安全可靠？</span></label>
+<label class="option"><input type="radio" name="Q22_官网核心解决问题" value="它大概多少钱？"><span>它大概多少钱？</span></label>
+<label class="option"><input type="radio" name="Q22_官网核心解决问题" value="我下一步该怎么联系 / 试用？"><span>我下一步该怎么联系 / 试用？</span></label>
+<label class="option"><input type="radio" name="Q22_官网核心解决问题" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q22_官网核心解决问题_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <div class="q-title">23. 你认为官网应该重点建设哪些页面？</div>
+  
+  <div class="options grid-2 checkbox-group">
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="首页"><span>首页</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="产品介绍页"><span>产品介绍页</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="解决方案页"><span>解决方案页</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="行业场景页"><span>行业场景页</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="客户案例页"><span>客户案例页</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="价格页"><span>价格页</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="技术能力页"><span>技术能力页</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="安全与合规页"><span>安全与合规页</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="关于我们"><span>关于我们</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="资源中心 / 博客"><span>资源中心 / 博客</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="帮助中心 / 文档"><span>帮助中心 / 文档</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="下载中心"><span>下载中心</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="联系我们"><span>联系我们</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="招聘页"><span>招聘页</span></label>
+<label class="option"><input type="checkbox" name="Q23_重点建设页面" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q23_重点建设页面_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <div class="q-title">24. 你认为官网最重要的转化动作是什么？</div>
+  
+  <div class="options grid-2">
+<label class="option"><input type="radio" name="Q24_最重要转化动作" value="预约演示"><span>预约演示</span></label>
+<label class="option"><input type="radio" name="Q24_最重要转化动作" value="免费试用"><span>免费试用</span></label>
+<label class="option"><input type="radio" name="Q24_最重要转化动作" value="立即注册"><span>立即注册</span></label>
+<label class="option"><input type="radio" name="Q24_最重要转化动作" value="联系销售"><span>联系销售</span></label>
+<label class="option"><input type="radio" name="Q24_最重要转化动作" value="下载资料"><span>下载资料</span></label>
+<label class="option"><input type="radio" name="Q24_最重要转化动作" value="申请报价"><span>申请报价</span></label>
+<label class="option"><input type="radio" name="Q24_最重要转化动作" value="加入社群"><span>加入社群</span></label>
+<label class="option"><input type="radio" name="Q24_最重要转化动作" value="订阅资讯"><span>订阅资讯</span></label>
+<label class="option"><input type="radio" name="Q24_最重要转化动作" value="查看案例"><span>查看案例</span></label>
+<label class="option"><input type="radio" name="Q24_最重要转化动作" value="咨询客服"><span>咨询客服</span></label>
+<label class="option"><input type="radio" name="Q24_最重要转化动作" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q24_最重要转化动作_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <div class="q-title">25. 对于官网内容，你认为目前最缺什么？</div>
+  <div class="q-help">最多选择 3 项。</div>
+  <div class="options grid-2 checkbox-group" data-max="3">
+<label class="option"><input type="checkbox" name="Q25_官网内容最缺" value="清晰的品牌定位"><span>清晰的品牌定位</span></label>
+<label class="option"><input type="checkbox" name="Q25_官网内容最缺" value="清晰的产品卖点"><span>清晰的产品卖点</span></label>
+<label class="option"><input type="checkbox" name="Q25_官网内容最缺" value="足够有说服力的客户案例"><span>足够有说服力的客户案例</span></label>
+<label class="option"><input type="checkbox" name="Q25_官网内容最缺" value="足够直观的产品截图"><span>足够直观的产品截图</span></label>
+<label class="option"><input type="checkbox" name="Q25_官网内容最缺" value="技术实力展示"><span>技术实力展示</span></label>
+<label class="option"><input type="checkbox" name="Q25_官网内容最缺" value="安全合规背书"><span>安全合规背书</span></label>
+<label class="option"><input type="checkbox" name="Q25_官网内容最缺" value="行业解决方案"><span>行业解决方案</span></label>
+<label class="option"><input type="checkbox" name="Q25_官网内容最缺" value="数据证明"><span>数据证明</span></label>
+<label class="option"><input type="checkbox" name="Q25_官网内容最缺" value="转化入口"><span>转化入口</span></label>
+<label class="option"><input type="checkbox" name="Q25_官网内容最缺" value="品牌故事"><span>品牌故事</span></label>
+<label class="option"><input type="checkbox" name="Q25_官网内容最缺" value="视觉记忆点"><span>视觉记忆点</span></label>
+<label class="option"><input type="checkbox" name="Q25_官网内容最缺" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q25_官网内容最缺_其他补充" placeholder="其他补充">
+</div>
+</div>
+</section>
+<section class="card" data-dept-section="tech">
+  <h2>F1. 研发 / 软件专项</h2>
+  <p class="section-desc">选择“研发”或“软件”后显示。</p>
+  
+<div class="question">
+  <div class="q-title">26B. 你认为官网最需要体现哪些技术能力？</div>
+  
+  <div class="options grid-2 checkbox-group">
+<label class="option"><input type="checkbox" name="Q26B_需体现技术能力" value="系统稳定性"><span>系统稳定性</span></label>
+<label class="option"><input type="checkbox" name="Q26B_需体现技术能力" value="数据安全"><span>数据安全</span></label>
+<label class="option"><input type="checkbox" name="Q26B_需体现技术能力" value="高并发能力"><span>高并发能力</span></label>
+<label class="option"><input type="checkbox" name="Q26B_需体现技术能力" value="接口开放能力"><span>接口开放能力</span></label>
+<label class="option"><input type="checkbox" name="Q26B_需体现技术能力" value="AI / 算法能力"><span>AI / 算法能力</span></label>
+<label class="option"><input type="checkbox" name="Q26B_需体现技术能力" value="自动化能力"><span>自动化能力</span></label>
+<label class="option"><input type="checkbox" name="Q26B_需体现技术能力" value="部署能力"><span>部署能力</span></label>
+<label class="option"><input type="checkbox" name="Q26B_需体现技术能力" value="集成能力"><span>集成能力</span></label>
+<label class="option"><input type="checkbox" name="Q26B_需体现技术能力" value="运维能力"><span>运维能力</span></label>
+<label class="option"><input type="checkbox" name="Q26B_需体现技术能力" value="权限管理"><span>权限管理</span></label>
+<label class="option"><input type="checkbox" name="Q26B_需体现技术能力" value="合规能力"><span>合规能力</span></label>
+<label class="option"><input type="checkbox" name="Q26B_需体现技术能力" value="技术文档完整性"><span>技术文档完整性</span></label>
+<label class="option"><input type="checkbox" name="Q26B_需体现技术能力" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q26B_需体现技术能力_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <div class="q-title">27B. 你认为技术内容应该如何呈现更容易被客户理解？</div>
+  <div class="q-help">最多选择 3 项。</div>
+  <div class="options grid-2 checkbox-group" data-max="3">
+<label class="option"><input type="checkbox" name="Q27B_技术内容呈现方式" value="技术架构图"><span>技术架构图</span></label>
+<label class="option"><input type="checkbox" name="Q27B_技术内容呈现方式" value="动画演示"><span>动画演示</span></label>
+<label class="option"><input type="checkbox" name="Q27B_技术内容呈现方式" value="产品流程图"><span>产品流程图</span></label>
+<label class="option"><input type="checkbox" name="Q27B_技术内容呈现方式" value="对比表格"><span>对比表格</span></label>
+<label class="option"><input type="checkbox" name="Q27B_技术内容呈现方式" value="白皮书下载"><span>白皮书下载</span></label>
+<label class="option"><input type="checkbox" name="Q27B_技术内容呈现方式" value="技术指标数据"><span>技术指标数据</span></label>
+<label class="option"><input type="checkbox" name="Q27B_技术内容呈现方式" value="安全认证说明"><span>安全认证说明</span></label>
+<label class="option"><input type="checkbox" name="Q27B_技术内容呈现方式" value="API文档入口"><span>API文档入口</span></label>
+<label class="option"><input type="checkbox" name="Q27B_技术内容呈现方式" value="案例中的技术细节"><span>案例中的技术细节</span></label>
+<label class="option"><input type="checkbox" name="Q27B_技术内容呈现方式" value="简化成业务收益表达"><span>简化成业务收益表达</span></label>
+<label class="option"><input type="checkbox" name="Q27B_技术内容呈现方式" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q27B_技术内容呈现方式_其他补充" placeholder="其他补充">
+</div>
+</div>
+</section>
+<section class="card" data-dept-section="marketing">
+  <h2>F2. 市场专项</h2>
+  <p class="section-desc">选择“市场”后显示。</p>
+  
+<div class="question">
+  <div class="q-title">26C. 你认为官网VI最需要服务哪些营销场景？</div>
+  
+  <div class="options grid-2 checkbox-group">
+<label class="option"><input type="checkbox" name="Q26C_VI服务营销场景" value="品牌传播"><span>品牌传播</span></label>
+<label class="option"><input type="checkbox" name="Q26C_VI服务营销场景" value="广告投放落地页"><span>广告投放落地页</span></label>
+<label class="option"><input type="checkbox" name="Q26C_VI服务营销场景" value="SEO内容承接"><span>SEO内容承接</span></label>
+<label class="option"><input type="checkbox" name="Q26C_VI服务营销场景" value="社媒传播素材"><span>社媒传播素材</span></label>
+<label class="option"><input type="checkbox" name="Q26C_VI服务营销场景" value="展会物料延展"><span>展会物料延展</span></label>
+<label class="option"><input type="checkbox" name="Q26C_VI服务营销场景" value="销售资料统一"><span>销售资料统一</span></label>
+<label class="option"><input type="checkbox" name="Q26C_VI服务营销场景" value="白皮书 / 报告包装"><span>白皮书 / 报告包装</span></label>
+<label class="option"><input type="checkbox" name="Q26C_VI服务营销场景" value="视频 / 短视频包装"><span>视频 / 短视频包装</span></label>
+<label class="option"><input type="checkbox" name="Q26C_VI服务营销场景" value="活动页面"><span>活动页面</span></label>
+<label class="option"><input type="checkbox" name="Q26C_VI服务营销场景" value="招商 / 合作"><span>招商 / 合作</span></label>
+<label class="option"><input type="checkbox" name="Q26C_VI服务营销场景" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q26C_VI服务营销场景_其他补充" placeholder="其他补充">
+</div>
+</div>
+<div class="question">
+  <div class="q-title">27C. 你认为品牌最需要一个怎样的视觉记忆点？</div>
+  <div class="q-help">最多选择 2 项。</div>
+  <div class="options grid-2 checkbox-group" data-max="2">
+<label class="option"><input type="checkbox" name="Q27C_视觉记忆点类型" value="独特主色"><span>独特主色</span></label>
+<label class="option"><input type="checkbox" name="Q27C_视觉记忆点类型" value="独特图形符号"><span>独特图形符号</span></label>
+<label class="option"><input type="checkbox" name="Q27C_视觉记忆点类型" value="独特字体 / 字标"><span>独特字体 / 字标</span></label>
+<label class="option"><input type="checkbox" name="Q27C_视觉记忆点类型" value="独特产品界面展示方式"><span>独特产品界面展示方式</span></label>
+<label class="option"><input type="checkbox" name="Q27C_视觉记忆点类型" value="独特动效"><span>独特动效</span></label>
+<label class="option"><input type="checkbox" name="Q27C_视觉记忆点类型" value="独特插画 / 3D风格"><span>独特插画 / 3D风格</span></label>
+<label class="option"><input type="checkbox" name="Q27C_视觉记忆点类型" value="独特口号"><span>独特口号</span></label>
+<label class="option"><input type="checkbox" name="Q27C_视觉记忆点类型" value="独特页面结构"><span>独特页面结构</span></label>
+<label class="option"><input type="checkbox" name="Q27C_视觉记忆点类型" value="独特品牌IP"><span>独特品牌IP</span></label>
+<label class="option"><input type="checkbox" name="Q27C_视觉记忆点类型" value="其他"><span>其他，请在后面补充</span></label>
+<input type="text" name="Q27C_视觉记忆点类型_其他补充" placeholder="其他补充">
+</div>
+</div>
+</section>
+<section class="card" >
+  <h2>G. 竞品与参考品牌</h2>
+  <p class="section-desc">用于找到“可借鉴”和“要避开”的视觉边界。</p>
+  
+<div class="question">
+  <label class="q-title" for="Q28_主要竞品替代方案">28. 请列出你认为 Cubvis 的主要竞品或替代方案</label>
+  <div class="q-help">可填写 3–5 个。</div>
+  <textarea id="Q28_主要竞品替代方案" name="Q28_主要竞品替代方案" placeholder="请填写你的真实想法。"></textarea>
+</div>
+<div class="question">
+  <label class="q-title" for="Q29_参考品牌官网">29. 你认为哪些品牌官网值得我们参考？为什么？</label>
+  <div class="q-help">不限行业。请说明你喜欢它的原因，例如清晰、专业、有记忆点、动效好、转化路径强等。</div>
+  <textarea id="Q29_参考品牌官网" name="Q29_参考品牌官网" placeholder="请填写你的真实想法。"></textarea>
+</div>
+<div class="question">
+  <label class="q-title" for="Q30_应避免参考风格">30. 你认为哪些品牌官网或视觉风格我们应该避免？为什么？</label>
+  
+  <textarea id="Q30_应避免参考风格" name="Q30_应避免参考风格" placeholder="请填写你的真实想法。"></textarea>
+</div>
+</section>
+<section class="card" >
+  <h2>H. 总结判断</h2>
+  <p class="section-desc">请给出最关键的判断，方便最后整理成设计 Brief。</p>
+  
+<div class="question">
+  <label class="q-title" for="Q31_理想VI三个词">31. 如果让你用三个词定义理想中的 Cubvis 官网VI，你会选哪三个？</label>
+  
+  <textarea id="Q31_理想VI三个词" name="Q31_理想VI三个词" placeholder="请填写你的真实想法。"></textarea>
+</div>
+<div class="question">
+  <label class="q-title" for="Q32_唯一品牌记忆点">32. 如果只能保留一个品牌记忆点，你认为应该是什么？</label>
+  
+  <textarea id="Q32_唯一品牌记忆点" name="Q32_唯一品牌记忆点" placeholder="请填写你的真实想法。"></textarea>
+</div>
+<div class="question">
+  <label class="q-title" for="Q33_其他建议">33. 你对本次官网VI设计还有什么建议？</label>
+  
+  <textarea id="Q33_其他建议" name="Q33_其他建议" placeholder="请填写你的真实想法。"></textarea>
+</div>
+</section>
+    </form>
+  </div>
+  
+<div class="actions">
+  <div class="actions-inner">
+    <div class="actions-left">
+      <button class="primary" type="button" id="downloadCurrent">下载当前结果 CSV</button>
+      <button class="secondary" type="button" id="saveAndExportAll">保存并导出累计 CSV</button>
+      <button class="ghost" type="button" id="exportAll">仅导出累计 CSV</button>
+    </div>
+    <div class="actions-right">
+      <span class="small">本机累计记录：<strong id="recordCount">0</strong> 条｜完成度：<strong id="progressText">0%</strong></span>
+      <button class="ghost" type="button" id="resetForm">清空当前填写</button>
+      <button class="danger" type="button" id="clearAll">清空累计记录</button>
+    </div>
+  </div>
+</div>
+  <script>
+(function () {
+  const STORAGE_KEY = document.body.dataset.storageKey || 'survey_local_records';
+  const FILE_PREFIX = document.body.dataset.filePrefix || 'survey';
+
+  function getOrderedNames() {
+    const fields = Array.from(document.querySelectorAll('[name]'));
+    const names = [];
+    fields.forEach(el => {
+      if (!names.includes(el.name)) names.push(el.name);
+    });
+    return names;
+  }
+
+  function getValue(name) {
+    const nodes = Array.from(document.querySelectorAll('[name]')).filter(el => el.name === name);
+    if (!nodes.length) return '';
+    const first = nodes[0];
+    if (first.type === 'checkbox') {
+      return nodes.filter(n => n.checked).map(n => n.value).join('；');
+    }
+    if (first.type === 'radio') {
+      const checked = nodes.find(n => n.checked);
+      return checked ? checked.value : '';
+    }
+    if (first.type === 'file') {
+      return Array.from(first.files || []).map(f => f.name).join('；');
+    }
+    if (first.tagName === 'SELECT' && first.multiple) {
+      return Array.from(first.selectedOptions).map(o => o.value).join('；');
+    }
+    return (first.value || '').trim();
+  }
+
+  function collectData() {
+    const data = {};
+    data['提交时间'] = new Date().toLocaleString('zh-CN', { hour12: false });
+    getOrderedNames().forEach(name => { data[name] = getValue(name); });
+    return data;
+  }
+
+  function csvEscape(value) {
+    const s = String(value == null ? '' : value);
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+
+  function buildCSV(rows, headers) {
+    const safeHeaders = headers && headers.length ? headers : Object.keys(rows[0] || collectData());
+    const lines = [safeHeaders.map(csvEscape).join(',')];
+    rows.forEach(row => lines.push(safeHeaders.map(h => csvEscape(row[h] || '')).join(',')));
+    return '\ufeff' + lines.join('\n');
+  }
+
+  function downloadText(filename, text) {
+    const blob = new Blob([text], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function timestampForFile() {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+  }
+
+  function localRows() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    catch (e) { return []; }
+  }
+
+  function saveLocalRow(row) {
+    const rows = localRows();
+    rows.push(row);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(rows));
+    updateRecordCount();
+    return rows;
+  }
+
+  function clearLocalRows() {
+    if (confirm('确定要清空这个浏览器里的本地累计记录吗？此操作不可恢复。')) {
+      localStorage.removeItem(STORAGE_KEY);
+      updateRecordCount();
+      alert('已清空本地累计记录。');
+    }
+  }
+
+  function downloadCurrent() {
+    const row = collectData();
+    const headers = Object.keys(row);
+    downloadText(FILE_PREFIX + '_current_' + timestampForFile() + '.csv', buildCSV([row], headers));
+  }
+
+  function saveAndExportAll() {
+    const row = collectData();
+    const rows = saveLocalRow(row);
+    const headers = Object.keys(row);
+    downloadText(FILE_PREFIX + '_all_local_records_' + timestampForFile() + '.csv', buildCSV(rows, headers));
+    alert('已保存到本机浏览器记录，并导出累计 CSV。');
+  }
+
+  function exportAll() {
+    const rows = localRows();
+    if (!rows.length) {
+      alert('本机浏览器暂无累计记录。你可以先点击“保存并导出累计 CSV”。');
+      return;
+    }
+    const headers = Object.keys(collectData());
+    downloadText(FILE_PREFIX + '_all_local_records_' + timestampForFile() + '.csv', buildCSV(rows, headers));
+  }
+
+  function updateRecordCount() {
+    const el = document.getElementById('recordCount');
+    if (el) el.textContent = String(localRows().length);
+  }
+
+  function bindMaxCheckboxes() {
+    document.querySelectorAll('.checkbox-group[data-max]').forEach(group => {
+      group.addEventListener('change', e => {
+        if (!e.target.matches('input[type="checkbox"]')) return;
+        const max = parseInt(group.dataset.max, 10);
+        const checked = group.querySelectorAll('input[type="checkbox"]:checked');
+        if (max && checked.length > max) {
+          e.target.checked = false;
+          alert('这一题最多选择 ' + max + ' 项。');
+        }
+      });
+    });
+  }
+
+  function updateProgress() {
+    const visibleFields = Array.from(document.querySelectorAll('[name]'))
+      .filter(el => !el.name.startsWith('_') && !el.closest('.hidden'));
+    const allGroups = [];
+    visibleFields.forEach(el => { if (!allGroups.includes(el.name)) allGroups.push(el.name); });
+    const answered = allGroups.filter(name => getValue(name) !== '').length;
+    const pct = allGroups.length ? Math.round(answered / allGroups.length * 100) : 0;
+    const bar = document.querySelector('.progress span');
+    const text = document.getElementById('progressText');
+    if (bar) bar.style.width = pct + '%';
+    if (text) text.textContent = pct + '%';
+  }
+
+  function bindProgress() {
+    document.addEventListener('input', updateProgress);
+    document.addEventListener('change', updateProgress);
+    updateProgress();
+  }
+
+  function bindDepartmentLogic() {
+    const sections = Array.from(document.querySelectorAll('[data-dept-section]'));
+    if (!sections.length) return;
+    function update() {
+      const selected = Array.from(document.querySelectorAll('input[name="Q01_部门"]')).find(x => x.checked)?.value || '';
+      sections.forEach(sec => sec.classList.add('hidden'));
+      if (/研发|软件/.test(selected)) document.querySelector('[data-dept-section="tech"]')?.classList.remove('hidden');
+      if (/市场/.test(selected)) document.querySelector('[data-dept-section="marketing"]')?.classList.remove('hidden');
+    }
+    document.querySelectorAll('input[name="Q01_部门"]').forEach(el => el.addEventListener('change', update));
+    update();
+  }
+
+  function bindImagePreview() {
+    const fileInput = document.getElementById('testImageFile');
+    const urlInput = document.getElementById('testImageUrl');
+    const img = document.getElementById('testImagePreview');
+    const stage = document.getElementById('previewStage');
+    const status = document.getElementById('previewStatus');
+    const btn = document.getElementById('startFiveSec');
+    if (!img || !stage || !btn) return;
+
+    function setStatus(text) { if (status) status.textContent = text; }
+    function setImageSrc(src) {
+      img.src = src;
+      stage.style.display = 'none';
+      setStatus('图片已载入。点击“开始 5 秒查看”后，图片会短暂显示并自动隐藏。');
+    }
+
+    if (fileInput) {
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => setImageSrc(e.target.result);
+        reader.readAsDataURL(file);
+      });
+    }
+    if (urlInput) {
+      urlInput.addEventListener('change', () => {
+        const url = urlInput.value.trim();
+        if (url) setImageSrc(url);
+      });
+    }
+    btn.addEventListener('click', () => {
+      if (!img.src) {
+        alert('请先上传图片或填写图片链接。');
+        return;
+      }
+      stage.style.display = 'block';
+      let seconds = 5;
+      setStatus('剩余 ' + seconds + ' 秒');
+      const timer = setInterval(() => {
+        seconds -= 1;
+        if (seconds <= 0) {
+          clearInterval(timer);
+          stage.style.display = 'none';
+          setStatus('预览已结束。请不要返回查看图片，继续回答下面的问题。');
+        } else {
+          setStatus('剩余 ' + seconds + ' 秒');
+        }
+      }, 1000);
+    });
+  }
+
+  function bindSchemeToggle() {
+    const toggle = document.getElementById('showSchemeComparison');
+    const section = document.getElementById('schemeComparisonSection');
+    if (!toggle || !section) return;
+    toggle.addEventListener('change', () => {
+      section.classList.toggle('hidden', toggle.value !== '是');
+    });
+    section.classList.toggle('hidden', toggle.value !== '是');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    bindMaxCheckboxes();
+    bindDepartmentLogic();
+    bindImagePreview();
+    bindSchemeToggle();
+    bindProgress();
+    updateRecordCount();
+    document.getElementById('downloadCurrent')?.addEventListener('click', downloadCurrent);
+    document.getElementById('saveAndExportAll')?.addEventListener('click', saveAndExportAll);
+    document.getElementById('exportAll')?.addEventListener('click', exportAll);
+    document.getElementById('clearAll')?.addEventListener('click', clearLocalRows);
+    document.getElementById('resetForm')?.addEventListener('click', () => {
+      if (confirm('确定要清空当前页面填写内容吗？')) {
+        document.getElementById('surveyForm')?.reset();
+        document.querySelectorAll('[data-dept-section]').forEach(sec => sec.classList.add('hidden'));
+        updateProgress();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
